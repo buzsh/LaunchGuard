@@ -69,6 +69,7 @@ class LaunchGuard: ObservableObject {
   private var cancellables: Set<AnyCancellable> = []
   
   @Published var apps: [AppProcess] = []
+  @Published var terminatedApps: [AppProcess] = []
   
   init() {
     setupObservers()
@@ -76,31 +77,22 @@ class LaunchGuard: ObservableObject {
   }
   
   private func setupObservers() {
-    let notificationCenter = NotificationCenter.default
     let workspaceNotificationCenter = NSWorkspace.shared.notificationCenter
     
-    workspaceNotificationCenter.addObserver(forName: NSWorkspace.didLaunchApplicationNotification, object: nil, queue: nil) { [weak self] notification in
-      Task {
-        await self?.appLaunched(notification: notification)
-      }
-    }
-    
-    // Observing applications will launch notification
-    workspaceNotificationCenter.addObserver(forName: NSWorkspace.willLaunchApplicationNotification, object: nil, queue: nil) { notification in
-      if let appInfo = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication {
-        let appName = appInfo.localizedName ?? "Unknown"
-        let bundleID = appInfo.bundleIdentifier ?? "Unknown Bundle ID"
-        print("Application will launch: \(appName) with Bundle ID: \(bundleID)")
+    workspaceNotificationCenter.addObserver(forName: NSWorkspace.didLaunchApplicationNotification, object: nil, queue: .main) { [weak self] notification in
+      if let nsRunningApp = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication {
+        Task {
+          await self?.appLaunched(nsRunningApp: nsRunningApp)
+        }
       }
     }
   }
   
-  private func appLaunched(notification: Notification) async {
-    guard let nsRunningApp = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication else { return }
+  private func appLaunched(nsRunningApp: NSRunningApplication?) async {
+    guard let nsRunningApp = nsRunningApp else { return }
     let app = AppProcess(nsRunningApp: nsRunningApp)
-    await MainActor.run {
-      self.addAppProcess(app)
-    }
+    Debug.log("appLaunched: \(app.name ?? "nil") (\(app.bundleID ?? "nil"))")
+    self.apps.append(app)
   }
   
   private func addAppProcess(_ appProcess: AppProcess) {
