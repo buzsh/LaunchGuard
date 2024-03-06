@@ -13,6 +13,7 @@
 		295503E42B98F4090074E3BD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 295503E32B98F4090074E3BD /* Assets.xcassets */; };
 		295503E72B98F4090074E3BD /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 295503E62B98F4090074E3BD /* Preview Assets.xcassets */; };
 		29B216F32B9900DF00411528 /* Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29B216F22B9900DF00411528 /* Debug.swift */; };
+		29B216F62B991BF400411528 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B216F52B991BF400411528 /* Metal.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		295503E62B98F4090074E3BD /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		295503E82B98F4090074E3BD /* LaunchGuard.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LaunchGuard.entitlements; sourceTree = "<group>"; };
 		29B216F22B9900DF00411528 /* Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Debug.swift; sourceTree = "<group>"; };
+		29B216F52B991BF400411528 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,6 +33,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				29B216F62B991BF400411528 /* Metal.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -50,6 +53,7 @@
 			children = (
 				295503DE2B98F4080074E3BD /* LaunchGuard */,
 				295503DD2B98F4080074E3BD /* Products */,
+				29B216F42B991BF400411528 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -89,6 +93,14 @@
 				29B216F22B9900DF00411528 /* Debug.swift */,
 			);
 			path = Debug;
+			sourceTree = "<group>";
+		};
+		29B216F42B991BF400411528 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				29B216F52B991BF400411528 /* Metal.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
