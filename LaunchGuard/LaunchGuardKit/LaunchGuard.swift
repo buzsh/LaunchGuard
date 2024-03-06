@@ -10,7 +10,8 @@ import AppKit
 import Combine
 
 class AppProcess: Identifiable, ObservableObject {
-  let id: Int32
+  let id: UUID = UUID()
+  let processID: Int32?
   let nsRunningApp: NSRunningApplication
   let name: String?
   let bundleID: String?
@@ -21,7 +22,7 @@ class AppProcess: Identifiable, ObservableObject {
   @Published var isTerminated: Bool
   
   init(nsRunningApp: NSRunningApplication) {
-    self.id = nsRunningApp.processIdentifier
+    self.processID = nsRunningApp.processIdentifier
     self.nsRunningApp = nsRunningApp
     self.name = nsRunningApp.localizedName
     self.icon = nsRunningApp.icon
@@ -30,8 +31,8 @@ class AppProcess: Identifiable, ObservableObject {
     self.isTerminated = nsRunningApp.isTerminated
     
     terminationObserver = nsRunningApp.observe(\.isTerminated, options: [.new]) { [weak self] app, change in
-        guard let self = self, let isTerminated = change.newValue else { return }
-        self.isTerminated = isTerminated
+      guard let self = self, let isTerminated = change.newValue else { return }
+      self.isTerminated = isTerminated
     }
   }
   
