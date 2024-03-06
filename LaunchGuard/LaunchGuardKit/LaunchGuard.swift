@@ -37,15 +37,26 @@ class AppProcess: Identifiable, ObservableObject {
   }
   
   func quit() -> Bool {
-    nsRunningApp.terminate()
+    Debug.logTermination(for: self.name, id: self.bundleID)
+    return nsRunningApp.terminate()
   }
   
   func forceQuit() -> Bool {
-    nsRunningApp.forceTerminate()
+    Debug.logTermination(for: self.name, id: self.bundleID, withForce: true)
+    return nsRunningApp.forceTerminate()
   }
   
   deinit {
     terminationObserver?.invalidate()
+  }
+}
+
+extension Debug {
+  static func logTermination(for appName: String?, id appBundleID: String?, withForce: Bool = false) {
+    let name: String = appName ?? "nil"
+    let bundleID: String = appBundleID ?? "nil"
+    let terminationTypeString = withForce ? "force termination" : "termination"
+    Debug.log("Sent \(terminationTypeString) request: \(name) (\(bundleID))")
   }
 }
 
@@ -86,7 +97,7 @@ class LaunchGuard: ObservableObject {
     self.apps.append(appProcess)
   }
   
-  private func refreshRunningApps() async {
+  func refreshRunningApps() async {
     apps = workspace.runningApplications.map { AppProcess(nsRunningApp: $0) }
   }
   
