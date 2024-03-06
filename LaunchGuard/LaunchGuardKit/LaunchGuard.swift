@@ -9,19 +9,30 @@ import Foundation
 import AppKit
 import Combine
 
-class AppProcess: Identifiable {
+class AppProcess: Identifiable, ObservableObject {
   let id: Int32
   let nsRunningApp: NSRunningApplication
   let name: String?
   let bundleID: String?
+  let icon: NSImage?
   let bundleURL: URL?
+  
+  private var terminationObserver: NSKeyValueObservation?
+  @Published var isTerminated: Bool
   
   init(nsRunningApp: NSRunningApplication) {
     self.id = nsRunningApp.processIdentifier
     self.nsRunningApp = nsRunningApp
     self.name = nsRunningApp.localizedName
+    self.icon = nsRunningApp.icon
     self.bundleID = nsRunningApp.bundleIdentifier
     self.bundleURL = nsRunningApp.bundleURL
+    self.isTerminated = nsRunningApp.isTerminated
+    
+    terminationObserver = nsRunningApp.observe(\.isTerminated, options: [.new]) { [weak self] app, change in
+        guard let self = self, let isTerminated = change.newValue else { return }
+        self.isTerminated = isTerminated
+    }
   }
   
   func quit() -> Bool {
@@ -31,7 +42,12 @@ class AppProcess: Identifiable {
   func forceQuit() -> Bool {
     nsRunningApp.forceTerminate()
   }
+  
+  deinit {
+    terminationObserver?.invalidate()
+  }
 }
+
 
 @MainActor
 class LaunchGuard: ObservableObject {
@@ -40,8 +56,7 @@ class LaunchGuard: ObservableObject {
   private let workspace = NSWorkspace.shared
   private var cancellables: Set<AnyCancellable> = []
   
-  @Published var runningApps: [AppProcess] = []
-  @Published var terminatedApps: [AppProcess] = []
+  @Published var apps: [AppProcess] = []
   
   init() {
     setupObservers()
@@ -51,10 +66,6 @@ class LaunchGuard: ObservableObject {
   private func setupObservers() {
     NotificationCenter.default.publisher(for: NSWorkspace.didLaunchApplicationNotification, object: nil)
       .sink { [weak self] notification in Task { await self?.appLaunched(notification: notification) } }
-      .store(in: &cancellables)
-    
-    NotificationCenter.default.publisher(for: NSWorkspace.didTerminateApplicationNotification, object: nil)
-      .sink { [weak self] notification in Task { await self?.appTerminated(notification: notification) } }
       .store(in: &cancellables)
   }
   
@@ -66,26 +77,16 @@ class LaunchGuard: ObservableObject {
     }
   }
   
-  private func appTerminated(notification: Notification) async {
-    guard let nsRunningApp = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication else { return }
-    if let index = runningApps.firstIndex(where: { $0.id == nsRunningApp.processIdentifier }) {
-      await MainActor.run {
-        let terminatedApp = runningApps.remove(at: index)
-        self.terminatedApps.append(terminatedApp)
-      }
-    }
-  }
-  
   private func addAppProcess(_ appProcess: AppProcess) {
-    let duplicate = runningApps.contains { existingApp in
+    let duplicate = apps.contains { existingApp in
       return existingApp.bundleID == appProcess.bundleID && existingApp.bundleURL == appProcess.bundleURL
     }
     guard !duplicate else { return }
-    self.runningApps.append(appProcess)
+    self.apps.append(appProcess)
   }
   
   private func refreshRunningApps() async {
-    runningApps = workspace.runningApplications.map { AppProcess(nsRunningApp: $0) }
+    apps = workspace.runningApplications.map { AppProcess(nsRunningApp: $0) }
   }
   
 }
