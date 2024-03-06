@@ -76,9 +76,23 @@ class LaunchGuard: ObservableObject {
   }
   
   private func setupObservers() {
-    NotificationCenter.default.publisher(for: NSWorkspace.didLaunchApplicationNotification, object: nil)
-      .sink { [weak self] notification in Task { await self?.appLaunched(notification: notification) } }
-      .store(in: &cancellables)
+    let notificationCenter = NotificationCenter.default
+    let workspaceNotificationCenter = NSWorkspace.shared.notificationCenter
+    
+    workspaceNotificationCenter.addObserver(forName: NSWorkspace.didLaunchApplicationNotification, object: nil, queue: nil) { [weak self] notification in
+      Task {
+        await self?.appLaunched(notification: notification)
+      }
+    }
+    
+    // Observing applications will launch notification
+    workspaceNotificationCenter.addObserver(forName: NSWorkspace.willLaunchApplicationNotification, object: nil, queue: nil) { notification in
+      if let appInfo = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication {
+        let appName = appInfo.localizedName ?? "Unknown"
+        let bundleID = appInfo.bundleIdentifier ?? "Unknown Bundle ID"
+        print("Application will launch: \(appName) with Bundle ID: \(bundleID)")
+      }
+    }
   }
   
   private func appLaunched(notification: Notification) async {
