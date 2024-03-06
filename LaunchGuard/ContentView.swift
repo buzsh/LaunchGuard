@@ -33,15 +33,21 @@ struct ContentView: View {
       
       ToolbarItem {
         Button(action: quitSelectedApps) {
-          Label("Quit Selected", systemImage: "xmark.octagon")
+          Label("Quit", systemImage: "x.circle")
+        }
+      }
+      
+      ToolbarItem {
+        Button(action: forceQuitSelectedApps) {
+          Label("Force Quit", systemImage: "xmark.octagon")
         }
       }
       
       ToolbarItem(placement: .primaryAction) {
         TextField("Search name, bundle ID", text: $searchText)
           .textFieldStyle(.roundedBorder)
-          //.frame(width: 300)
-          .frame(minWidth: 100, maxWidth: 300)
+          .frame(width: 165)
+          //.frame(minWidth: 100, maxWidth: 300)
       }
     }
   }
@@ -54,10 +60,18 @@ struct ContentView: View {
   func quitSelectedApps() {
     for appID in selectedApps {
       if let appToQuit = launchGuard.apps.first(where: { $0.id == appID }) {
-        let response = appToQuit.quit()
-        Debug.log("Quit successful: \(response)")
+        _ = appToQuit.quit()
       }
     }
+    refreshApps()
+  }
+  func forceQuitSelectedApps() {
+    for appID in selectedApps {
+      if let appToQuit = launchGuard.apps.first(where: { $0.id == appID }) {
+        _ = appToQuit.forceQuit()
+      }
+    }
+    refreshApps()
   }
 }
 
@@ -72,10 +86,11 @@ struct AppsTableView: View {
   let searchText: String
   
   var filteredApps: [AppProcess] {
+    let allApps = launchGuard.apps + launchGuard.terminatedApps
     if searchText.isEmpty {
-      return launchGuard.apps
+      return allApps
     } else {
-      return launchGuard.apps.filter {
+      return allApps.filter {
         $0.name?.localizedCaseInsensitiveContains(searchText) ?? false ||
         $0.bundleID?.localizedCaseInsensitiveContains(searchText) ?? false
       }

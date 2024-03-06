@@ -18,7 +18,6 @@ class AppProcess: Identifiable, ObservableObject {
   let icon: NSImage?
   let bundleURL: URL?
   
-  private var terminationObserver: NSKeyValueObservation?
   @Published var isTerminated: Bool
   
   init(nsRunningApp: NSRunningApplication) {
@@ -29,11 +28,6 @@ class AppProcess: Identifiable, ObservableObject {
     self.bundleID = nsRunningApp.bundleIdentifier
     self.bundleURL = nsRunningApp.bundleURL
     self.isTerminated = nsRunningApp.isTerminated
-    
-    terminationObserver = nsRunningApp.observe(\.isTerminated, options: [.new]) { [weak self] app, change in
-      guard let self = self, let isTerminated = change.newValue else { return }
-      self.isTerminated = isTerminated
-    }
   }
   
   func quit() -> Bool {
@@ -45,9 +39,12 @@ class AppProcess: Identifiable, ObservableObject {
     Debug.logTermination(for: self.name, id: self.bundleID, withForce: true)
     return nsRunningApp.forceTerminate()
   }
-  
-  deinit {
-    terminationObserver?.invalidate()
+}
+
+extension AppProcess: Equatable {
+  static func == (lhs: AppProcess, rhs: AppProcess) -> Bool {
+    //lhs.bundleID == rhs.bundleID && lhs.bundleURL == rhs.bundleURL
+    lhs.id == rhs.id
   }
 }
 
@@ -55,7 +52,7 @@ extension Debug {
   static func logTermination(for appName: String?, id appBundleID: String?, withForce: Bool = false) {
     let name: String = appName ?? "nil"
     let bundleID: String = appBundleID ?? "nil"
-    let terminationTypeString = withForce ? "force termination" : "termination"
+    let terminationTypeString = withForce ? "forced termination" : "termination"
     Debug.log("Sent \(terminationTypeString) request: \(name) (\(bundleID))")
   }
 }
@@ -67,6 +64,8 @@ class LaunchGuard: ObservableObject {
   static let shared = LaunchGuard()
   private let workspace = NSWorkspace.shared
   private var cancellables: Set<AnyCancellable> = []
+  
+  @Published var processRefreshFlag: Bool = false
   
   @Published var apps: [AppProcess] = []
   @Published var terminatedApps: [AppProcess] = []
@@ -86,21 +85,29 @@ class LaunchGuard: ObservableObject {
         }
       }
     }
+    
+    workspaceNotificationCenter.addObserver(forName: NSWorkspace.didTerminateApplicationNotification, object: nil, queue: .main) { [weak self] notification in
+      if let nsRunningApp = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication {
+        Task {
+          await self?.appTerminated(nsRunningApp: nsRunningApp)
+        }
+      }
+    }
   }
   
   private func appLaunched(nsRunningApp: NSRunningApplication?) async {
     guard let nsRunningApp = nsRunningApp else { return }
     let app = AppProcess(nsRunningApp: nsRunningApp)
     Debug.log("appLaunched: \(app.name ?? "nil") (\(app.bundleID ?? "nil"))")
-    self.apps.append(app)
+    apps.append(app)
+    terminatedApps.removeAll(where: { $0.bundleID == app.bundleID })
   }
   
-  private func addAppProcess(_ appProcess: AppProcess) {
-    let duplicate = apps.contains { existingApp in
-      return existingApp.bundleID == appProcess.bundleID && existingApp.bundleURL == appProcess.bundleURL
-    }
-    guard !duplicate else { return }
-    self.apps.append(appProcess)
+  private func appTerminated(nsRunningApp: NSRunningApplication) async {
+    let app = AppProcess(nsRunningApp: nsRunningApp)
+    Debug.log("appTerminated: \(app.name ?? "nil") (\(app.bundleID ?? "nil"))")
+    apps.removeAll(where: { $0.processID == app.processID })
+    terminatedApps.append(app)
   }
   
   func refreshRunningApps() async {
