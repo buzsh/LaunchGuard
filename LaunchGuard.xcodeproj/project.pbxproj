@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		29404F4E2B98F507003EC79F /* LaunchGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29404F4D2B98F507003EC79F /* LaunchGuard.swift */; };
 		295503E02B98F4080074E3BD /* LaunchGuardApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 295503DF2B98F4080074E3BD /* LaunchGuardApp.swift */; };
 		295503E22B98F4080074E3BD /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 295503E12B98F4080074E3BD /* ContentView.swift */; };
 		295503E42B98F4090074E3BD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 295503E32B98F4090074E3BD /* Assets.xcassets */; };
@@ -14,6 +15,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		29404F4D2B98F507003EC79F /* LaunchGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchGuard.swift; sourceTree = "<group>"; };
 		295503DC2B98F4080074E3BD /* LaunchGuard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LaunchGuard.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		295503DF2B98F4080074E3BD /* LaunchGuardApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchGuardApp.swift; sourceTree = "<group>"; };
 		295503E12B98F4080074E3BD /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -33,6 +35,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		29404F4C2B98F4F9003EC79F /* LaunchGuardKit */ = {
+			isa = PBXGroup;
+			children = (
+				29404F4D2B98F507003EC79F /* LaunchGuard.swift */,
+			);
+			path = LaunchGuardKit;
+			sourceTree = "<group>";
+		};
 		295503D32B98F4080074E3BD = {
 			isa = PBXGroup;
 			children = (
@@ -54,6 +64,7 @@
 			children = (
 				295503DF2B98F4080074E3BD /* LaunchGuardApp.swift */,
 				295503E12B98F4080074E3BD /* ContentView.swift */,
+				29404F4C2B98F4F9003EC79F /* LaunchGuardKit */,
 				295503E32B98F4090074E3BD /* Assets.xcassets */,
 				295503E82B98F4090074E3BD /* LaunchGuard.entitlements */,
 				295503E52B98F4090074E3BD /* Preview Content */,
@@ -141,6 +152,7 @@
 			files = (
 				295503E22B98F4080074E3BD /* ContentView.swift in Sources */,
 				295503E02B98F4080074E3BD /* LaunchGuardApp.swift in Sources */,
+				29404F4E2B98F507003EC79F /* LaunchGuard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
