@@ -49,6 +49,8 @@
 		29404F4C2B98F4F9003EC79F /* LaunchGuardKit */ = {
 			isa = PBXGroup;
 			children = (
+				29B216F72B9935A400411528 /* DaemonGuard */,
+				29A895492B9A29FF00B8F603 /* LaunchGuard */,
 				29404F4D2B98F507003EC79F /* LaunchGuard.swift */,
 			);
 			path = LaunchGuardKit;
@@ -77,7 +79,6 @@
 				295503DF2B98F4080074E3BD /* LaunchGuardApp.swift */,
 				295503E12B98F4080074E3BD /* ContentView.swift */,
 				29B216FC2B9935F300411528 /* Views */,
-				29B216F72B9935A400411528 /* DaemonGuard */,
 				29404F4C2B98F4F9003EC79F /* LaunchGuardKit */,
 				29B216F12B9900D200411528 /* Debug */,
 				295503E32B98F4090074E3BD /* Assets.xcassets */,
@@ -93,6 +94,13 @@
 				295503E62B98F4090074E3BD /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		29A895492B9A29FF00B8F603 /* LaunchGuard */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = LaunchGuard;
 			sourceTree = "<group>";
 		};
 		29B216F12B9900D200411528 /* Debug */ = {
