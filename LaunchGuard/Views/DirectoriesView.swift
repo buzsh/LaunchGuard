@@ -36,10 +36,6 @@ struct DirectoriesView: View {
   }
   
   var body: some View {
-    Button("Manual Refresh") {
-      refreshAllDirectories()
-    }
-    
     List {
       ForEach(directoryManager.directories, id: \.self) { directory in
         Section(header:
@@ -58,6 +54,15 @@ struct DirectoriesView: View {
           ForEach(directory.files, id: \.self) { file in
             FileRow(file: file)
           }
+        }
+      }
+    }
+    .toolbar {
+      ToolbarItem(placement: .principal) {
+        Button(action: {
+          refreshAllDirectories()
+        }) {
+          Image(systemName: "arrow.clockwise")
         }
       }
     }
