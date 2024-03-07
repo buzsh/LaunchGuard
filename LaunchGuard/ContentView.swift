@@ -15,9 +15,7 @@ struct ContentView: View {
   @ObservedObject var launchGuard = LaunchGuard.shared
   @State private var searchText = ""
   @State private var selectedApps: Set<UUID> = []
-  
   @State private var selectedView: ViewManager = .processes
-  
   @State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn
   
   var body: some View {
@@ -31,10 +29,6 @@ struct ContentView: View {
       detailView()
     }
     .toolbar {
-      ToolbarItemGroup(placement: .navigation) {
-        
-      }
-      
       ToolbarItemGroup(placement: .principal) {
         Picker("Options", selection: $selectedView) {
           Text("Processes").tag(ViewManager.processes)
@@ -44,18 +38,27 @@ struct ContentView: View {
         .pickerStyle(SegmentedPickerStyle())
       }
       
-      
-      
       ToolbarItemGroup(placement: .automatic) {
         Spacer()
-        Button(action: refreshApps) {
-          Label("Refresh", systemImage: "arrow.clockwise")
-        }
-        Button(action: quitSelectedApps) {
-          Label("Quit", systemImage: "x.circle")
-        }
-        Button(action: forceQuitSelectedApps) {
-          Label("Force Quit", systemImage: "xmark.octagon")
+        Menu {
+          Button(action: quitSelectedApps) {
+            HStack {
+              Image(systemName: "xmark.octagon")
+              Text("Quit")
+            }
+          }
+          .disabled(selectedApps.isEmpty)
+          
+          Button(action: forceQuitSelectedApps) {
+            HStack {
+              Image(systemName: "xmark.octagon.fill")
+              Text("Force Quit")
+            }
+          }
+          .disabled(selectedApps.isEmpty)
+          
+        } label: {
+          Label("Quit...", systemImage: "xmark.octagon")
         }
         TextField("Search name, bundle ID", text: $searchText)
           .textFieldStyle(.roundedBorder)
@@ -70,10 +73,10 @@ struct ContentView: View {
     case .processes:
       AppsTableView(selection: $selectedApps, searchText: searchText)
     case .daemons:
-      DirectoriesView()
+      DirectoriesView(searchText: $searchText)
     case .split:
       VSplitView {
-        DirectoriesView()
+        DirectoriesView(searchText: $searchText)
         AppsTableView(selection: $selectedApps, searchText: searchText)
       }
     }
@@ -105,6 +108,7 @@ struct ContentView: View {
 
 #Preview {
   ContentView()
+    .frame(width: 800, height: 600)
 }
 
 struct AppsTableView: View {

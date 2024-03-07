@@ -24,8 +24,6 @@ class DirectoryManager: ObservableObject {
     DirectoryObserver(directoryURL: Constants.homeLaunchAgentsDirUrl)
   ]
   
-  private let persistedDirectoriesKey = "PersistedDirectories"
-  
   func addDirectory(_ url: URL) {
     guard !directories.contains(where: { $0.directoryURL == url }) else { return }
     

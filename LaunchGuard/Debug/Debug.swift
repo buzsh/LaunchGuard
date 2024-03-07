@@ -7,6 +7,8 @@
 
 import Foundation
 
+let CanvasPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+
 /// A debugging utility class that conditionally performs logging and actions based on its active state.
 ///
 /// This class provides a global access point through `Debug.shared` to perform logging and execute closures conditionally if debugging is enabled.
@@ -32,7 +34,7 @@ class Debug: ObservableObject {
   ///
   /// - important: Use `Debug.log` instead.
   private func logInstance<T>(_ value: T) {
-    if isActive {
+    if isActive && !CanvasPreview {
       print(value)
       console += "\(value)\n"
     }
