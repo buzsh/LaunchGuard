@@ -47,11 +47,21 @@ class DirectoryObserver: ObservableObject {
         self?.files = fileURLs.map { $0.lastPathComponent }.sorted()
       }
     } catch {
-      print("Error updating file list: \(error)")
+      Debug.log("Error updating file list: \(error)")
     }
   }
   
   deinit {
     stopObserving()
+  }
+}
+
+extension DirectoryObserver: Equatable, Hashable {
+  static func == (lhs: DirectoryObserver, rhs: DirectoryObserver) -> Bool {
+    lhs.directoryURL == rhs.directoryURL
+  }
+  
+  func hash(into hasher: inout Hasher) {
+    hasher.combine(directoryURL)
   }
 }
