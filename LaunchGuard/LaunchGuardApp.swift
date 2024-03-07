@@ -32,6 +32,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     Debug.log("applicationDidFinishLaunching")
     directoryManager.loadPersistedDirectories()
     directoryManager.startObserving()
+    _ = LaunchGuard.shared
   }
   
   func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
