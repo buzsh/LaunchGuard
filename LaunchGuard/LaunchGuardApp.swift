@@ -7,11 +7,34 @@
 
 import SwiftUI
 
+struct Constants {
+  static let appName = "LaunchGuard"
+}
+
 @main
 struct LaunchGuardApp: App {
+  @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+  
   var body: some Scene {
     WindowGroup {
       ContentView()
     }
   }
+}
+
+import Cocoa
+
+class AppDelegate: NSObject, NSApplicationDelegate {
+  
+  func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+    Debug.log("applicationShouldTerminate")
+    return .terminateNow
+  }
+  
+  
+  func applicationDidFinishLaunching(_ notification: Notification) {
+    Debug.log("applicationDidFinishLaunching")
+    
+  }
+  
 }
