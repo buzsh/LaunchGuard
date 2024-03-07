@@ -18,17 +18,25 @@ extension Constants {
 class DirectoryManager: ObservableObject {
   static let shared = DirectoryManager()
   
-  @Published var directories: [DirectoryObserver] = [
-    DirectoryObserver(directoryURL: Constants.rootLaunchAgentsDirUrl),
-    DirectoryObserver(directoryURL: Constants.rootLaunchDaemonsDirUrl),
-    DirectoryObserver(directoryURL: Constants.homeLaunchAgentsDirUrl)
-  ]
+  @Published var directories: [DirectoryObserver] = []
+  
+  private init() {
+    directories = [
+      DirectoryObserver(directoryURL: Constants.rootLaunchAgentsDirUrl),
+      DirectoryObserver(directoryURL: Constants.rootLaunchDaemonsDirUrl),
+      DirectoryObserver(directoryURL: Constants.homeLaunchAgentsDirUrl)
+    ]
+    
+    loadPersistedDirectories()
+    startObserving()
+  }
   
   func addDirectory(_ url: URL) {
     guard !directories.contains(where: { $0.directoryURL == url }) else { return }
     
     let newObserver = DirectoryObserver(directoryURL: url)
     directories.append(newObserver)
+    newObserver.startObserving()
     savePersistedDirectories()
   }
   
@@ -52,7 +60,12 @@ class DirectoryManager: ObservableObject {
     guard let urls = UserDefaults.standard.object(forKey: Constants.persistedDirectoriesKey) as? [String],
           !urls.isEmpty else { return }
     
-    urls.compactMap { URL(string: $0) }.forEach { addDirectory($0) }
+    let persistedUrls = urls.compactMap(URL.init(string:))
+    let newUrls = persistedUrls.filter { url in
+      !directories.contains { $0.directoryURL == url }
+    }
+    
+    newUrls.forEach { addDirectory($0) }
   }
   
   func savePersistedDirectories() {

@@ -26,18 +26,16 @@ struct LaunchGuardApp: App {
 import Cocoa
 
 class AppDelegate: NSObject, NSApplicationDelegate {
-  let directoryManager = DirectoryManager.shared
   
   func applicationDidFinishLaunching(_ notification: Notification) {
     Debug.log("applicationDidFinishLaunching")
-    directoryManager.loadPersistedDirectories()
-    directoryManager.startObserving()
     _ = LaunchGuard.shared
+    _ = DirectoryManager.shared
   }
   
   func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
     Debug.log("applicationShouldTerminate")
-    directoryManager.stopObserving()
+    DirectoryManager.shared.stopObserving()
     return .terminateNow
   }
 }
