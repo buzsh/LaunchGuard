@@ -7,10 +7,16 @@
 
 import SwiftUI
 
+enum ViewManager: Hashable {
+  case processes, daemons, split
+}
+
 struct ContentView: View {
   @ObservedObject var launchGuard = LaunchGuard.shared
   @State private var searchText = ""
   @State private var selectedApps: Set<UUID> = []
+  
+  @State private var selectedView: ViewManager = .processes
   
   @State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn // .doubleColumn (hide by default)
   
@@ -22,35 +28,57 @@ struct ContentView: View {
       Text("Main")
       
     } detail: {
-      AppsTableView(selection: $selectedApps, searchText: searchText)
+      detailView()
     }
     .toolbar {
-      ToolbarItem {
+      ToolbarItemGroup(placement: .navigation) {
+        
+      }
+      
+      ToolbarItemGroup(placement: .principal) {
+        Picker("Options", selection: $selectedView) {
+          Text("Processes").tag(ViewManager.processes)
+          Text("Daemons").tag(ViewManager.daemons)
+          Text("Split").tag(ViewManager.split)
+        }
+        .pickerStyle(SegmentedPickerStyle())
+      }
+      
+      
+      
+      ToolbarItemGroup(placement: .automatic) {
+        Spacer()
         Button(action: refreshApps) {
           Label("Refresh", systemImage: "arrow.clockwise")
         }
-      }
-      
-      ToolbarItem {
         Button(action: quitSelectedApps) {
           Label("Quit", systemImage: "x.circle")
         }
-      }
-      
-      ToolbarItem {
         Button(action: forceQuitSelectedApps) {
           Label("Force Quit", systemImage: "xmark.octagon")
         }
-      }
-      
-      ToolbarItem(placement: .primaryAction) {
         TextField("Search name, bundle ID", text: $searchText)
           .textFieldStyle(.roundedBorder)
           .frame(width: 165)
-          //.frame(minWidth: 100, maxWidth: 300)
       }
     }
   }
+  
+  @ViewBuilder
+  private func detailView() -> some View {
+    switch selectedView {
+    case .processes:
+      AppsTableView(selection: $selectedApps, searchText: searchText)
+    case .daemons:
+      DirectoriesView()
+    case .split:
+      VSplitView {
+        DirectoriesView()
+        AppsTableView(selection: $selectedApps, searchText: searchText)
+      }
+    }
+  }
+  
   func refreshApps() {
     Task {
       await launchGuard.refreshRunningApps()
