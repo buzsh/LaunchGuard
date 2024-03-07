@@ -18,17 +18,17 @@ struct DirectoriesView: View {
   
   var body: some View {
     List {
-      Section(header: Text("First Directory")) {
+      Section(header: Text("/Library/LaunchAgents").font(.system(size: 11, weight: .medium, design: .monospaced))) {
         ForEach(directoryObserver1.files, id: \.self) { file in
           Text(file)
         }
       }
-      Section(header: Text("Second Directory")) {
+      Section(header: Text("/Library/LaunchDaemons").font(.system(size: 11, weight: .medium, design: .monospaced))) {
         ForEach(directoryObserver2.files, id: \.self) { file in
           Text(file)
         }
       }
-      Section(header: Text("Third Directory")) {
+      Section(header: Text("~/Library/LaunchAgents").font(.system(size: 11, weight: .medium, design: .monospaced))) {
         ForEach(directoryObserver3.files, id: \.self) { file in
           Text(file)
         }
