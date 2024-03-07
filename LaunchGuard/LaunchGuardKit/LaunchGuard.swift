@@ -9,38 +9,61 @@ import Foundation
 import AppKit
 import Combine
 
-class AppProcess: Identifiable {
-  let id: Int32
+class AppProcess: Identifiable, ObservableObject {
+  let id: UUID = UUID()
+  let processID: Int32?
   let nsRunningApp: NSRunningApplication
   let name: String?
   let bundleID: String?
+  let icon: NSImage?
   let bundleURL: URL?
   
+  @Published var isTerminated: Bool
+  
   init(nsRunningApp: NSRunningApplication) {
-    self.id = nsRunningApp.processIdentifier
+    self.processID = nsRunningApp.processIdentifier
     self.nsRunningApp = nsRunningApp
     self.name = nsRunningApp.localizedName
+    self.icon = nsRunningApp.icon
     self.bundleID = nsRunningApp.bundleIdentifier
     self.bundleURL = nsRunningApp.bundleURL
+    self.isTerminated = nsRunningApp.isTerminated
   }
   
   func quit() -> Bool {
-    nsRunningApp.terminate()
+    Debug.logTermination(for: self.name, id: self.bundleID)
+    return nsRunningApp.terminate()
   }
   
   func forceQuit() -> Bool {
-    nsRunningApp.forceTerminate()
+    Debug.logTermination(for: self.name, id: self.bundleID, withForce: true)
+    return nsRunningApp.forceTerminate()
   }
 }
+
+extension AppProcess: Equatable {
+  static func == (lhs: AppProcess, rhs: AppProcess) -> Bool {
+    //lhs.bundleID == rhs.bundleID && lhs.bundleURL == rhs.bundleURL
+    lhs.id == rhs.id
+  }
+}
+
+extension Debug {
+  static func logTermination(for appName: String?, id appBundleID: String?, withForce: Bool = false) {
+    let name: String = appName ?? "nil"
+    let bundleID: String = appBundleID ?? "nil"
+    let terminationTypeString = withForce ? "forced termination" : "termination"
+    Debug.log("Sent \(terminationTypeString) request: \(name) (\(bundleID))")
+  }
+}
+
 
 @MainActor
 class LaunchGuard: ObservableObject {
   
   static let shared = LaunchGuard()
-  private let workspace = NSWorkspace.shared
   private var cancellables: Set<AnyCancellable> = []
-  
-  @Published var runningApps: [AppProcess] = []
+  @Published var apps: [AppProcess] = []
   @Published var terminatedApps: [AppProcess] = []
   
   init() {
@@ -49,43 +72,42 @@ class LaunchGuard: ObservableObject {
   }
   
   private func setupObservers() {
-    NotificationCenter.default.publisher(for: NSWorkspace.didLaunchApplicationNotification, object: nil)
-      .sink { [weak self] notification in Task { await self?.appLaunched(notification: notification) } }
-      .store(in: &cancellables)
+    let workspaceNotificationCenter = NSWorkspace.shared.notificationCenter
     
-    NotificationCenter.default.publisher(for: NSWorkspace.didTerminateApplicationNotification, object: nil)
-      .sink { [weak self] notification in Task { await self?.appTerminated(notification: notification) } }
-      .store(in: &cancellables)
-  }
-  
-  private func appLaunched(notification: Notification) async {
-    guard let nsRunningApp = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication else { return }
-    let app = AppProcess(nsRunningApp: nsRunningApp)
-    await MainActor.run {
-      self.addAppProcess(app)
+    workspaceNotificationCenter.addObserver(forName: NSWorkspace.didLaunchApplicationNotification, object: nil, queue: .main) { [weak self] notification in
+      if let nsRunningApp = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication {
+        Task {
+          await self?.appLaunched(nsRunningApp: nsRunningApp)
+        }
+      }
     }
-  }
-  
-  private func appTerminated(notification: Notification) async {
-    guard let nsRunningApp = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication else { return }
-    if let index = runningApps.firstIndex(where: { $0.id == nsRunningApp.processIdentifier }) {
-      await MainActor.run {
-        let terminatedApp = runningApps.remove(at: index)
-        self.terminatedApps.append(terminatedApp)
+    
+    workspaceNotificationCenter.addObserver(forName: NSWorkspace.didTerminateApplicationNotification, object: nil, queue: .main) { [weak self] notification in
+      if let nsRunningApp = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication {
+        Task {
+          await self?.appTerminated(nsRunningApp: nsRunningApp)
+        }
       }
     }
   }
   
-  private func addAppProcess(_ appProcess: AppProcess) {
-    let duplicate = runningApps.contains { existingApp in
-      return existingApp.bundleID == appProcess.bundleID && existingApp.bundleURL == appProcess.bundleURL
-    }
-    guard !duplicate else { return }
-    self.runningApps.append(appProcess)
+  private func appLaunched(nsRunningApp: NSRunningApplication?) async {
+    guard let nsRunningApp = nsRunningApp else { return }
+    let app = AppProcess(nsRunningApp: nsRunningApp)
+    Debug.log("appLaunched: \(app.name ?? "nil") (\(app.bundleID ?? "nil"))")
+    apps.append(app)
+    terminatedApps.removeAll(where: { $0.bundleID == app.bundleID })
   }
   
-  private func refreshRunningApps() async {
-    runningApps = workspace.runningApplications.map { AppProcess(nsRunningApp: $0) }
+  private func appTerminated(nsRunningApp: NSRunningApplication) async {
+    let app = AppProcess(nsRunningApp: nsRunningApp)
+    Debug.log("appTerminated: \(app.name ?? "nil") (\(app.bundleID ?? "nil"))")
+    apps.removeAll(where: { $0.processID == app.processID })
+    terminatedApps.append(app)
+  }
+  
+  func refreshRunningApps() async {
+    apps = NSWorkspace.shared.runningApplications.map { AppProcess(nsRunningApp: $0) }
   }
   
 }

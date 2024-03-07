@@ -13,6 +13,10 @@
 		295503E42B98F4090074E3BD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 295503E32B98F4090074E3BD /* Assets.xcassets */; };
 		295503E72B98F4090074E3BD /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 295503E62B98F4090074E3BD /* Preview Assets.xcassets */; };
 		29B216F32B9900DF00411528 /* Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29B216F22B9900DF00411528 /* Debug.swift */; };
+		29B216F62B991BF400411528 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B216F52B991BF400411528 /* Metal.framework */; };
+		29B216F92B9935B100411528 /* DaemonGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29B216F82B9935B100411528 /* DaemonGuard.swift */; };
+		29B216FB2B9935C100411528 /* DirectoryObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29B216FA2B9935C100411528 /* DirectoryObserver.swift */; };
+		29B216FE2B99360500411528 /* DirectoriesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29B216FD2B99360500411528 /* DirectoriesView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +28,10 @@
 		295503E62B98F4090074E3BD /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		295503E82B98F4090074E3BD /* LaunchGuard.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LaunchGuard.entitlements; sourceTree = "<group>"; };
 		29B216F22B9900DF00411528 /* Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Debug.swift; sourceTree = "<group>"; };
+		29B216F52B991BF400411528 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		29B216F82B9935B100411528 /* DaemonGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaemonGuard.swift; sourceTree = "<group>"; };
+		29B216FA2B9935C100411528 /* DirectoryObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryObserver.swift; sourceTree = "<group>"; };
+		29B216FD2B99360500411528 /* DirectoriesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoriesView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,6 +39,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				29B216F62B991BF400411528 /* Metal.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -40,6 +49,8 @@
 		29404F4C2B98F4F9003EC79F /* LaunchGuardKit */ = {
 			isa = PBXGroup;
 			children = (
+				29B216F72B9935A400411528 /* DaemonGuard */,
+				29A895492B9A29FF00B8F603 /* LaunchGuard */,
 				29404F4D2B98F507003EC79F /* LaunchGuard.swift */,
 			);
 			path = LaunchGuardKit;
@@ -50,6 +61,7 @@
 			children = (
 				295503DE2B98F4080074E3BD /* LaunchGuard */,
 				295503DD2B98F4080074E3BD /* Products */,
+				29B216F42B991BF400411528 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -66,6 +78,7 @@
 			children = (
 				295503DF2B98F4080074E3BD /* LaunchGuardApp.swift */,
 				295503E12B98F4080074E3BD /* ContentView.swift */,
+				29B216FC2B9935F300411528 /* Views */,
 				29404F4C2B98F4F9003EC79F /* LaunchGuardKit */,
 				29B216F12B9900D200411528 /* Debug */,
 				295503E32B98F4090074E3BD /* Assets.xcassets */,
@@ -83,12 +96,44 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
+		29A895492B9A29FF00B8F603 /* LaunchGuard */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = LaunchGuard;
+			sourceTree = "<group>";
+		};
 		29B216F12B9900D200411528 /* Debug */ = {
 			isa = PBXGroup;
 			children = (
 				29B216F22B9900DF00411528 /* Debug.swift */,
 			);
 			path = Debug;
+			sourceTree = "<group>";
+		};
+		29B216F42B991BF400411528 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				29B216F52B991BF400411528 /* Metal.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		29B216F72B9935A400411528 /* DaemonGuard */ = {
+			isa = PBXGroup;
+			children = (
+				29B216F82B9935B100411528 /* DaemonGuard.swift */,
+				29B216FA2B9935C100411528 /* DirectoryObserver.swift */,
+			);
+			path = DaemonGuard;
+			sourceTree = "<group>";
+		};
+		29B216FC2B9935F300411528 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				29B216FD2B99360500411528 /* DirectoriesView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -162,9 +207,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				295503E22B98F4080074E3BD /* ContentView.swift in Sources */,
+				29B216F92B9935B100411528 /* DaemonGuard.swift in Sources */,
 				29B216F32B9900DF00411528 /* Debug.swift in Sources */,
 				295503E02B98F4080074E3BD /* LaunchGuardApp.swift in Sources */,
+				29B216FE2B99360500411528 /* DirectoriesView.swift in Sources */,
 				29404F4E2B98F507003EC79F /* LaunchGuard.swift in Sources */,
+				29B216FB2B9935C100411528 /* DirectoryObserver.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
