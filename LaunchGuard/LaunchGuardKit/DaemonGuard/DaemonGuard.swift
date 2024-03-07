@@ -51,7 +51,7 @@ class DirectoryManager: ObservableObject {
   }
   
   func loadPersistedDirectories() {
-    guard let urls = UserDefaults.standard.object(forKey: persistedDirectoriesKey) as? [String],
+    guard let urls = UserDefaults.standard.object(forKey: Constants.persistedDirectoriesKey) as? [String],
           !urls.isEmpty else { return }
     
     urls.compactMap { URL(string: $0) }.forEach { addDirectory($0) }
@@ -59,6 +59,6 @@ class DirectoryManager: ObservableObject {
   
   func savePersistedDirectories() {
     let urls = directories.filter { $0.isRemovable }.map { $0.directoryURL.absoluteString }
-    UserDefaults.standard.set(urls, forKey: persistedDirectoriesKey)
+    UserDefaults.standard.set(urls, forKey: Constants.persistedDirectoriesKey)
   }
 }
