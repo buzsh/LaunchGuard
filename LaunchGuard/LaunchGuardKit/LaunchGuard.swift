@@ -62,11 +62,7 @@ extension Debug {
 class LaunchGuard: ObservableObject {
   
   static let shared = LaunchGuard()
-  private let workspace = NSWorkspace.shared
   private var cancellables: Set<AnyCancellable> = []
-  
-  @Published var processRefreshFlag: Bool = false
-  
   @Published var apps: [AppProcess] = []
   @Published var terminatedApps: [AppProcess] = []
   
@@ -111,7 +107,7 @@ class LaunchGuard: ObservableObject {
   }
   
   func refreshRunningApps() async {
-    apps = workspace.runningApplications.map { AppProcess(nsRunningApp: $0) }
+    apps = NSWorkspace.shared.runningApplications.map { AppProcess(nsRunningApp: $0) }
   }
   
 }

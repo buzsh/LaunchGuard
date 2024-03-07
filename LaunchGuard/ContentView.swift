@@ -18,14 +18,14 @@ struct ContentView: View {
   
   @State private var selectedView: ViewManager = .processes
   
-  @State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn // .doubleColumn (hide by default)
+  @State private var columnVisibility = NavigationSplitViewVisibility.doubleColumn
   
   var body: some View {
     NavigationSplitView(columnVisibility: $columnVisibility) {
       Text("Sidebar!")
       
     } content: {
-      Text("Main")
+      Text("Rules")
       
     } detail: {
       detailView()
