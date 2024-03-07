@@ -10,8 +10,8 @@ import Foundation
 extension Constants {
   static let persistedDirectoriesKey = "PersistedDirectories"
   
-  static let rootLaunchAgentsDirUrl: URL = URL(string: "/Library/LaunchAgents")!
-  static let rootLaunchDaemonsDirUrl: URL = URL(string: "/Library/LaunchDaemons")!
+  static let rootLaunchAgentsDirUrl: URL = URL(fileURLWithPath: "/Library/LaunchAgents")
+  static let rootLaunchDaemonsDirUrl: URL = URL(fileURLWithPath: "/Library/LaunchDaemons")
   static let homeLaunchAgentsDirUrl: URL = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/LaunchAgents")
 }
 
