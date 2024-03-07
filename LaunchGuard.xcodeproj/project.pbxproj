@@ -13,6 +13,7 @@
 		295503E42B98F4090074E3BD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 295503E32B98F4090074E3BD /* Assets.xcassets */; };
 		295503E72B98F4090074E3BD /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 295503E62B98F4090074E3BD /* Preview Assets.xcassets */; };
 		29A8954B2B9A34A000B8F603 /* AppProcess.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29A8954A2B9A34A000B8F603 /* AppProcess.swift */; };
+		29A8954D2B9A393300B8F603 /* LaunchGuardAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29A8954C2B9A393300B8F603 /* LaunchGuardAppDelegate.swift */; };
 		29B216F32B9900DF00411528 /* Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29B216F22B9900DF00411528 /* Debug.swift */; };
 		29B216F62B991BF400411528 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29B216F52B991BF400411528 /* Metal.framework */; };
 		29B216F92B9935B100411528 /* DaemonGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29B216F82B9935B100411528 /* DaemonGuard.swift */; };
@@ -29,6 +30,7 @@
 		295503E62B98F4090074E3BD /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		295503E82B98F4090074E3BD /* LaunchGuard.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LaunchGuard.entitlements; sourceTree = "<group>"; };
 		29A8954A2B9A34A000B8F603 /* AppProcess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppProcess.swift; sourceTree = "<group>"; };
+		29A8954C2B9A393300B8F603 /* LaunchGuardAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchGuardAppDelegate.swift; sourceTree = "<group>"; };
 		29B216F22B9900DF00411528 /* Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Debug.swift; sourceTree = "<group>"; };
 		29B216F52B991BF400411528 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		29B216F82B9935B100411528 /* DaemonGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaemonGuard.swift; sourceTree = "<group>"; };
@@ -78,6 +80,7 @@
 			isa = PBXGroup;
 			children = (
 				295503DF2B98F4080074E3BD /* LaunchGuardApp.swift */,
+				29A8954C2B9A393300B8F603 /* LaunchGuardAppDelegate.swift */,
 				295503E12B98F4080074E3BD /* ContentView.swift */,
 				29B216FC2B9935F300411528 /* Views */,
 				29404F4C2B98F4F9003EC79F /* LaunchGuardKit */,
@@ -215,6 +218,7 @@
 				29A8954B2B9A34A000B8F603 /* AppProcess.swift in Sources */,
 				295503E02B98F4080074E3BD /* LaunchGuardApp.swift in Sources */,
 				29B216FE2B99360500411528 /* DirectoriesView.swift in Sources */,
+				29A8954D2B9A393300B8F603 /* LaunchGuardAppDelegate.swift in Sources */,
 				29404F4E2B98F507003EC79F /* LaunchGuard.swift in Sources */,
 				29B216FB2B9935C100411528 /* DirectoryObserver.swift in Sources */,
 			);

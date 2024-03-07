@@ -22,20 +22,3 @@ struct LaunchGuardApp: App {
     }
   }
 }
-
-import Cocoa
-
-class AppDelegate: NSObject, NSApplicationDelegate {
-  
-  func applicationDidFinishLaunching(_ notification: Notification) {
-    Debug.log("applicationDidFinishLaunching")
-    _ = LaunchGuard.shared
-    _ = DirectoryManager.shared
-  }
-  
-  func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-    Debug.log("applicationShouldTerminate")
-    DirectoryManager.shared.stopObserving()
-    return .terminateNow
-  }
-}
