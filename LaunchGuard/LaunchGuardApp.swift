@@ -18,6 +18,7 @@ struct LaunchGuardApp: App {
   var body: some Scene {
     WindowGroup {
       ContentView()
+        .frame(minWidth: 800, idealWidth: 900, minHeight: 500, idealHeight: 700)
     }
   }
 }
