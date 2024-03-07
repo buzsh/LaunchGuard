@@ -116,4 +116,20 @@ class DirectoryManager: ObservableObject {
     let urls = directories.filter { $0.isRemovable }.map { $0.directoryURL.absoluteString }
     UserDefaults.standard.set(urls, forKey: Constants.persistedDirectoriesKey)
   }
+  
+  func moveToTrash(fileURL: URL) async {
+    guard let directoryIndex = directories.firstIndex(where: { fileURL.deletingLastPathComponent() == $0.directoryURL }) else {
+      print("Directory for file not found")
+      return
+    }
+    
+    do {
+      var resultingURL: NSURL?
+      try FileManager.default.trashItem(at: fileURL, resultingItemURL: &resultingURL)
+      await directories[directoryIndex].updateFileList()
+      print("Moved to Trash: \(fileURL.lastPathComponent), New Location: \(String(describing: resultingURL))")
+    } catch {
+      print("Error moving file to trash: \(error)")
+    }
+  }
 }

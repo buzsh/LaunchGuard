@@ -62,7 +62,7 @@ class DirectoryObserver: ObservableObject {
     }
   }
   
-  private func updateFileList() async {
+  func updateFileList() async {
     do {
       let fileURLs = try FileManager.default.contentsOfDirectory(at: directoryURL, includingPropertiesForKeys: nil)
       let filteredFileURLs = fileURLs.filter { $0.lastPathComponent != ".DS_Store" }

@@ -41,28 +41,51 @@ struct DirectoriesView: View {
     }
     
     List {
-      ForEach(filteredDirectoryFiles, id: \.directoryURL) { directory, files in
-        Section(header: HStack {
-          Text(directory.absoluteString)
+      ForEach(directoryManager.directories, id: \.self) { directory in
+        Section(header:
+                  HStack {
+          Text(directory.directoryURL.absoluteString.replacingOccurrences(of: "file://", with: ""))
             .font(.system(size: 11, weight: .medium, design: .monospaced))
           Spacer()
           Button(action: {
-            NSWorkspace.shared.open(directory)
+            NSWorkspace.shared.open(directory.directoryURL)
           }) {
             Image(systemName: "folder")
           }
           .buttonStyle(PlainButtonStyle())
-        }) {
-          ForEach(files, id: \.self) { file in
-            Text(file.lastPathComponent)
+        }
+        ) {
+          ForEach(directory.files, id: \.self) { file in
+            FileRow(file: file)
           }
         }
       }
     }
   }
 }
+
+
+#Preview {
+  DirectoriesView(searchText: .constant(""))
+}
+
+struct FileRow: View {
+  let file: URL
   
-  
-  #Preview {
-    DirectoriesView(searchText: .constant(""))
+  var body: some View {
+    HStack {
+      Text(file.lastPathComponent)
+      Spacer()
+      
+      Button(action: {
+        Task {
+          await DirectoryManager.shared.moveToTrash(fileURL: file)
+        }
+      }) {
+        Image(systemName: "trash")
+      }
+      .buttonStyle(BorderlessButtonStyle())
+      
+    }
   }
+}
