@@ -11,11 +11,39 @@ struct DirectoriesView: View {
   @ObservedObject private var directoryManager = DirectoryManager.shared
   @Binding var searchText: String
   
+  private var filteredDirectoryFiles: [(directoryURL: URL, files: [URL])] {
+    var directoryFiles = [(directoryURL: URL, files: [URL])]()
+    
+    for directory in directoryManager.directories {
+      let files: [URL] = directory.files.filter { file in
+        searchText.isEmpty || file.lastPathComponent.localizedCaseInsensitiveContains(searchText)
+      }
+      
+      if !files.isEmpty {
+        directoryFiles.append((directoryURL: directory.directoryURL, files: files))
+      }
+    }
+    
+    return directoryFiles
+  }
+  
+  private func refreshAllDirectories() {
+    for directory in directoryManager.directories {
+      Task {
+        await directory.updateFileList()
+      }
+    }
+  }
+  
   var body: some View {
+    Button("Manual Refresh") {
+      refreshAllDirectories()
+    }
+    
     List {
-      ForEach(directoryManager.filteredFiles(searchText: searchText), id: \.directoryURL) { directory, files in
+      ForEach(filteredDirectoryFiles, id: \.directoryURL) { directory, files in
         Section(header: HStack {
-          Text(directory.path)
+          Text(directory.absoluteString)
             .font(.system(size: 11, weight: .medium, design: .monospaced))
           Spacer()
           Button(action: {
@@ -26,31 +54,15 @@ struct DirectoriesView: View {
           .buttonStyle(PlainButtonStyle())
         }) {
           ForEach(files, id: \.self) { file in
-            Text(file)
+            Text(file.lastPathComponent)
           }
         }
       }
     }
   }
 }
-
-
-#Preview {
-  DirectoriesView(searchText: .constant(""))
-}
-
-extension DirectoryManager {
-  func filteredFiles(searchText: String) -> [(directoryURL: URL, files: [String])] {
-    let filtered = directories.map { observer -> (directoryURL: URL, files: [String]) in
-      if searchText.isEmpty {
-        return (observer.directoryURL, observer.files)
-      } else {
-        let files = observer.files.filter { $0.localizedCaseInsensitiveContains(searchText) }
-        return (observer.directoryURL, files)
-      }
-    }.filter { !$0.files.isEmpty || searchText.isEmpty }
-    
-    return filtered
+  
+  
+  #Preview {
+    DirectoriesView(searchText: .constant(""))
   }
-}
-

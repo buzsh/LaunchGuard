@@ -6,48 +6,71 @@
 //
 
 import Foundation
-import SwiftUI
-import Combine
-
-extension Constants {
-  static let directoryRefereshIntervalInSeconds: UInt64 = 1
-}
 
 class DirectoryObserver: ObservableObject {
-  @Published var files: [String] = []
-  
   var directoryURL: URL
-  private var observationTask: Task<Void, Never>?
   var isRemovable: Bool
+  private var dispatchSource: DispatchSourceFileSystemObject?
+  private var fileDescriptor: Int32 = -1
+  @Published var files: [URL] = []
   
   init(directoryURL: URL, isRemovable: Bool = true) {
     self.directoryURL = directoryURL
     self.isRemovable = isRemovable
+    startObserving()
   }
   
   func startObserving() {
-    stopObserving()
-    observationTask = Task { [weak self] in
-      while !Task.isCancelled {
+      stopObserving()
+    
+    fileDescriptor = open(directoryURL.path, O_EVTONLY)
+    guard fileDescriptor != -1 else { return }
+    
+    let dispatchSource = DispatchSource.makeFileSystemObjectSource(
+      fileDescriptor: fileDescriptor,
+      eventMask: [.write, .delete],
+      queue: DispatchQueue.global()
+    )
+    
+    dispatchSource.setEventHandler { [weak self] in
+      Task { [weak self] in
         await self?.updateFileList()
-        try? await Task.sleep(nanoseconds: Constants.directoryRefereshIntervalInSeconds * 1_000_000_000)
       }
+    }
+    
+    dispatchSource.setCancelHandler { [weak self] in
+      if let fd = self?.fileDescriptor, fd != -1 {
+        close(fd)
+        self?.fileDescriptor = -1
+      }
+    }
+    
+    dispatchSource.resume()
+    self.dispatchSource = dispatchSource
+    
+    Task {
+      await updateFileList()
     }
   }
   
   func stopObserving() {
-    observationTask?.cancel()
-    observationTask = nil
+    dispatchSource?.cancel()
+    dispatchSource = nil
+    if fileDescriptor != -1 {
+      close(fileDescriptor)
+      fileDescriptor = -1
+    }
   }
   
-  private func updateFileList() async {
+  func updateFileList() async {
     do {
       let fileURLs = try FileManager.default.contentsOfDirectory(at: directoryURL, includingPropertiesForKeys: nil)
-      DispatchQueue.main.async { [weak self] in
-        self?.files = fileURLs.map { $0.lastPathComponent }.sorted()
+      await MainActor.run {
+        self.files = fileURLs.sorted(by: { $0.lastPathComponent < $1.lastPathComponent })
+        Debug.log("Updated file list for directory: \(directoryURL.lastPathComponent), file count: \(fileURLs.count)")
       }
     } catch {
-      Debug.log("Error updating file list: \(error)")
+      Debug.log("Error updating file list for directory: \(directoryURL.lastPathComponent), error: \(error)")
     }
   }
   

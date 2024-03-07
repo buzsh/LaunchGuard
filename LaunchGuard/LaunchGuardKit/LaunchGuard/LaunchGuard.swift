@@ -21,9 +21,9 @@ extension Debug {
 
 @MainActor
 class LaunchGuard: ObservableObject {
-  
   static let shared = LaunchGuard()
   private var cancellables: Set<AnyCancellable> = []
+  
   @Published var apps: [AppProcess] = []
   @Published var terminatedApps: [AppProcess] = []
   

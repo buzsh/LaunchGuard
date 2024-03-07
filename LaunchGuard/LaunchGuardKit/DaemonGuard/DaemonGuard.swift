@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 extension Constants {
   static let persistedDirectoriesKey = "PersistedDirectories"
@@ -17,18 +18,61 @@ extension Constants {
 
 class DirectoryManager: ObservableObject {
   static let shared = DirectoryManager()
+  private var filesChangePublisher = PassthroughSubject<Void, Never>()
+  private var cancellables: Set<AnyCancellable> = []
   
   @Published var directories: [DirectoryObserver] = []
+  @Published var files: [URL] = []
   
   private init() {
+    setupDirectories()
+    observeDirectoriesChanges()
+  }
+  
+  private func setupDirectories() {
     directories = [
-      DirectoryObserver(directoryURL: Constants.rootLaunchAgentsDirUrl),
-      DirectoryObserver(directoryURL: Constants.rootLaunchDaemonsDirUrl),
-      DirectoryObserver(directoryURL: Constants.homeLaunchAgentsDirUrl)
+      DirectoryObserver(directoryURL: Constants.rootLaunchAgentsDirUrl, isRemovable: false),
+      DirectoryObserver(directoryURL: Constants.rootLaunchDaemonsDirUrl, isRemovable: false),
+      DirectoryObserver(directoryURL: Constants.homeLaunchAgentsDirUrl, isRemovable: false)
     ]
     
     loadPersistedDirectories()
     startObserving()
+  }
+  
+  private func observeDirectoriesChanges() {
+    directories.forEach { observer in
+      observer.$files
+        .dropFirst()
+        .sink { [weak self] _ in
+          self?.filesChangePublisher.send()
+        }
+        .store(in: &cancellables)
+    }
+    
+    filesChangePublisher
+      .sink { [weak self] _ in
+        self?.objectWillChange.send()
+      }
+      .store(in: &cancellables)
+  }
+  
+  private func observeDirectories() {
+    directories.forEach { directory in
+      directory.$files
+        .sink { [weak self] _ in
+          self?.updateAggregatedFiles()
+        }
+        .store(in: &cancellables)
+    }
+  }
+  
+  private func updateAggregatedFiles() {
+    Task {
+      await MainActor.run {
+        self.files = self.directories.flatMap { $0.files }
+      }
+    }
   }
   
   func addDirectory(_ url: URL) {
