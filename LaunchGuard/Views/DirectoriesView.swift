@@ -11,23 +11,58 @@ struct DirectoriesView: View {
   @ObservedObject private var directoryManager = DirectoryManager.shared
   @Binding var searchText: String
   
+  private var filteredDirectoryFiles: [(directoryURL: URL, files: [URL])] {
+    var directoryFiles = [(directoryURL: URL, files: [URL])]()
+    
+    for directory in directoryManager.directories {
+      let files: [URL] = directory.files.filter { file in
+        searchText.isEmpty || file.lastPathComponent.localizedCaseInsensitiveContains(searchText)
+      }
+      
+      if !files.isEmpty {
+        directoryFiles.append((directoryURL: directory.directoryURL, files: files))
+      }
+    }
+    
+    return directoryFiles
+  }
+  
+  private func refreshAllDirectories() {
+    for directory in directoryManager.directories {
+      Task {
+        await directory.updateFileList()
+      }
+    }
+  }
+  
   var body: some View {
     List {
-      ForEach(directoryManager.filteredFiles(searchText: searchText), id: \.directoryURL) { directory, files in
-        Section(header: HStack {
-          Text(directory.path)
+      ForEach(directoryManager.directories, id: \.self) { directory in
+        Section(header:
+                  HStack {
+          Text(directory.directoryURL.absoluteString.replacingOccurrences(of: "file://", with: ""))
             .font(.system(size: 11, weight: .medium, design: .monospaced))
           Spacer()
           Button(action: {
-            NSWorkspace.shared.open(directory)
+            NSWorkspace.shared.open(directory.directoryURL)
           }) {
             Image(systemName: "folder")
           }
           .buttonStyle(PlainButtonStyle())
-        }) {
-          ForEach(files, id: \.self) { file in
-            Text(file)
+        }
+        ) {
+          ForEach(directory.files, id: \.self) { file in
+            FileRow(file: file)
           }
+        }
+      }
+    }
+    .toolbar {
+      ToolbarItem(placement: .principal) {
+        Button(action: {
+          refreshAllDirectories()
+        }) {
+          Image(systemName: "arrow.clockwise")
         }
       }
     }
@@ -39,18 +74,23 @@ struct DirectoriesView: View {
   DirectoriesView(searchText: .constant(""))
 }
 
-extension DirectoryManager {
-  func filteredFiles(searchText: String) -> [(directoryURL: URL, files: [String])] {
-    let filtered = directories.map { observer -> (directoryURL: URL, files: [String]) in
-      if searchText.isEmpty {
-        return (observer.directoryURL, observer.files)
-      } else {
-        let files = observer.files.filter { $0.localizedCaseInsensitiveContains(searchText) }
-        return (observer.directoryURL, files)
+struct FileRow: View {
+  let file: URL
+  
+  var body: some View {
+    HStack {
+      Text(file.lastPathComponent)
+      Spacer()
+      
+      Button(action: {
+        Task {
+          await DirectoryManager.shared.moveToTrash(fileURL: file)
+        }
+      }) {
+        Image(systemName: "trash")
       }
-    }.filter { !$0.files.isEmpty || searchText.isEmpty }
-    
-    return filtered
+      .buttonStyle(BorderlessButtonStyle())
+      
+    }
   }
 }
-
