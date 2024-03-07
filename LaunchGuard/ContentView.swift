@@ -29,10 +29,6 @@ struct ContentView: View {
       detailView()
     }
     .toolbar {
-      ToolbarItemGroup(placement: .navigation) {
-        
-      }
-      
       ToolbarItemGroup(placement: .principal) {
         Picker("Options", selection: $selectedView) {
           Text("Processes").tag(ViewManager.processes)
@@ -77,10 +73,10 @@ struct ContentView: View {
     case .processes:
       AppsTableView(selection: $selectedApps, searchText: searchText)
     case .daemons:
-      DirectoriesView()
+      DirectoriesView(searchText: $searchText)
     case .split:
       VSplitView {
-        DirectoriesView()
+        DirectoriesView(searchText: $searchText)
         AppsTableView(selection: $selectedApps, searchText: searchText)
       }
     }
