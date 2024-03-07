@@ -51,7 +51,6 @@
 			children = (
 				29B216F72B9935A400411528 /* DaemonGuard */,
 				29A895492B9A29FF00B8F603 /* LaunchGuard */,
-				29404F4D2B98F507003EC79F /* LaunchGuard.swift */,
 			);
 			path = LaunchGuardKit;
 			sourceTree = "<group>";
@@ -99,6 +98,7 @@
 		29A895492B9A29FF00B8F603 /* LaunchGuard */ = {
 			isa = PBXGroup;
 			children = (
+				29404F4D2B98F507003EC79F /* LaunchGuard.swift */,
 			);
 			path = LaunchGuard;
 			sourceTree = "<group>";
