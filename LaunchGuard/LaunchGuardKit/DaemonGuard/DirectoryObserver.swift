@@ -62,12 +62,12 @@ class DirectoryObserver: ObservableObject {
     }
   }
   
-  func updateFileList() async {
+  private func updateFileList() async {
     do {
       let fileURLs = try FileManager.default.contentsOfDirectory(at: directoryURL, includingPropertiesForKeys: nil)
+      let filteredFileURLs = fileURLs.filter { $0.lastPathComponent != ".DS_Store" }
       await MainActor.run {
-        self.files = fileURLs.sorted(by: { $0.lastPathComponent < $1.lastPathComponent })
-        Debug.log("Updated file list for directory: \(directoryURL.lastPathComponent), file count: \(fileURLs.count)")
+        self.files = filteredFileURLs.sorted(by: { $0.lastPathComponent < $1.lastPathComponent })
       }
     } catch {
       Debug.log("Error updating file list for directory: \(directoryURL.lastPathComponent), error: \(error)")
